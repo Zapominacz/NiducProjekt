@@ -11,8 +11,8 @@ rushHourIndex = 1;
 
 %przygotowywanie potraw
 przygotowanychPotraw = 0;
-kucharzy = 4;
-doUkonczeniaPotrawy = wblrnd(1.158774415699941e+02, 1.3222556979404211, kucharzy);
+kucharzy = 3;
+doUkonczeniaPotrawy = wblrnd(1.158774415699941e+02, 1.3222556979404211, 1,  kucharzy);
 
 
 iloscKlientow = 0;
@@ -27,6 +27,8 @@ while(dniSymulacji < iloscDniSymulacji)
     if(czasDnia > 22 * godzina)
         nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow;
         iloscKlientow = 0;
+        przygotowanychPotraw = 0;
+        doUkonczeniaPotrawy = wblrnd(1.158774415699941e+02, 1.3222556979404211, 1, kucharzy);
         czasDoParagonuKas = zeros(1,iloscKas);
         czasDoNastepnegoKlienta = 0;
         rushHourIndex = 1;
@@ -54,8 +56,26 @@ while(dniSymulacji < iloscDniSymulacji)
     %obsluga kas
     for kasa = 1:iloscKas
         if(czasDoParagonuKas(1, kasa) <= 0 && iloscKlientow > 0)
-            iloscKlientow = iloscKlientow - 1;
             czasDoParagonuKas(1, kasa) = lognrnd(4.186137273240221, 0.582386104269140);
+        end
+    end
+    
+    %przygotowanie potraw
+    for kucharz = 1:kucharzy
+        if(doUkonczeniaPotrawy(1, kucharz) <= 0)
+            przygotowanychPotraw = przygotowanychPotraw + 1;
+            doUkonczeniaPotrawy(1, kucharz) = wblrnd(1.158774415699941e+02, 1.3222556979404211);
+        end
+    end
+    
+    %odbieranie potraw
+    if(przygotowanychPotraw > 0 && iloscKlientow > 0) 
+        if(przygotowanychPotraw > iloscKlientow)
+            przygotowanychPotraw = przygotowanychPotraw - iloscKlientow;
+            iloscKlientow = 0;
+        else 
+            iloscKlientow = iloscKlientow - przygotowanychPotraw;
+            przygotowanychPotraw = 0;
         end
     end
     
@@ -72,10 +92,11 @@ while(dniSymulacji < iloscDniSymulacji)
     end
     
     %nastepny event
-    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas];
+    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, doUkonczeniaPotrawy];
     nextEvent = min(eventTime(eventTime > 0));
     czasDnia = nextEvent + czasDnia;
     %skrocenie czasow
+    doUkonczeniaPotrawy = doUkonczeniaPotrawy - nextEvent;
     czasDoNastepnegoKlienta = czasDoNastepnegoKlienta - nextEvent;
     czasDoParagonuKas = czasDoParagonuKas - nextEvent;
 end
