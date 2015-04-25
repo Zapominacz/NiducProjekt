@@ -41,12 +41,11 @@ while(dniSymulacji < iloscDniSymulacji)
         if(isRushHours)
            if(czasDnia > endRushHours(rushHourIndex))
                isRushHours = false;
-               rushHourIndex = rushHourIndex + 1;
            end
         else 
            if(czasDnia > rushHours(rushHourIndex))
                isRushHours = true;
-               
+               rushHourIndex = rushHourIndex + 1;
            end
         end
     end
