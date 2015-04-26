@@ -22,7 +22,7 @@ function varargout = ui(varargin)
 
 % Edit the above text to modify the response to help ui
 
-% Last Modified by GUIDE v2.5 26-Apr-2015 14:54:43
+% Last Modified by GUIDE v2.5 26-Apr-2015 22:17:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -108,7 +108,7 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-dni = get(handles.edit4, 'String');
+dni = get(handles.edit17, 'String');
 iloscDniSymulacji = str2double(dni);
 kucharzy = str2double(get(handles.edit20, 'String'));
 rushHours = str2double(strread(get(handles.edit25, 'String'), '%s','delimiter',','));
@@ -483,3 +483,24 @@ function edit23_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --------------------------------------------------------------------
+function plik_Callback(hObject, eventdata, handles)
+% hObject    handle to plik (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function wczytaj_Callback(hObject, eventdata, handles)
+% hObject    handle to wczytaj (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function zapisz_Callback(hObject, eventdata, handles)
+% hObject    handle to zapisz (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
