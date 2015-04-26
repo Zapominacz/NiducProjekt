@@ -3,11 +3,14 @@ godzina = 60 * minuta;
 dzien = 24 * godzina;
 
 nieobsluzeniKlienci = 0;
-
-rushHours = [12.5, 16] .* godzina;
-endRushHours = [13, 18] .* godzina;
+rushHours = rushHours .* godzina;
+endRushHours = endRushHours .* godzina;
+emptyHours = emptyHours .* godzina;
+endEmptyHours = endEmptyHours .* godzina;
 isRushHours = false;
+isEmptyHours = false;
 rushHourIndex = 1;
+emptyHourIndex = 1;
 
 %przygotowywanie potraw
 przygotowanychPotraw = 0;
@@ -33,6 +36,8 @@ while(dniSymulacji < iloscDniSymulacji)
         czasDoParagonuKas = zeros(1,iloscKas);
         czasDoNastepnegoKlienta = 0;
         rushHourIndex = 1;
+        emptyHourIndex = 1;
+        isEmptyHours = false;
         isRushHours = false;
         czasDnia = 11 * godzina;
         dniSymulacji = dniSymulacji + 1;
@@ -50,6 +55,19 @@ while(dniSymulacji < iloscDniSymulacji)
            if(czasDnia > rushHours(rushHourIndex))
                isRushHours = true;
                
+           end
+        end
+    end
+    %lub ich brak
+    if(emptyHourIndex <= length(emptyHours))
+        if(isEmptyHours)
+           if(czasDnia > endEmptyHours(emptyHourIndex))
+               isEmptyHours = false;
+               emptyHourIndex = emptyHourIndex + 1;
+           end
+        else 
+           if(czasDnia > emptyHours(emptyHourIndex))
+               isEmptyHours = true;
            end
         end
     end
@@ -89,6 +107,8 @@ while(dniSymulacji < iloscDniSymulacji)
         %wartosci dystrybucji wyciagnac na gore
         if(isRushHours)
             czasDoNastepnegoKlienta = exprnd(16.714285714285715);
+        elseif(isEmptyHours)
+            czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
         else
             czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
         end
