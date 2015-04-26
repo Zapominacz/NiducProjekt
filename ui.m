@@ -111,10 +111,10 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 dni = get(handles.edit4, 'String');
 iloscDniSymulacji = str2double(dni);
 kucharzy = str2double(get(handles.edit20, 'String'));
-rushHours = str2double(strsplit(get(handles.edit25, 'String'), ','));
-endRushHours = str2double(strsplit(get(handles.edit26, 'String'), ','));
-emptyHours = str2double(strsplit(get(handles.edit23, 'String'), ','));
-endEmptyHours = str2double(strsplit(get(handles.edit24, 'String'), ','));
+rushHours = str2double(strread(get(handles.edit25, 'String'), '%s','delimiter',','));
+endRushHours = str2double(strread(get(handles.edit26, 'String'), '%s','delimiter',','));
+emptyHours = str2double(strread(get(handles.edit23, 'String'), '%s','delimiter',','));
+endEmptyHours = str2double(strread(get(handles.edit24, 'String'), '%s','delimiter',','));
 kasy = get(handles.edit5, 'String');
 iloscKas = str2double(kasy);
 
