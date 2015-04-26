@@ -11,7 +11,7 @@ rushHourIndex = 1;
 
 %przygotowywanie potraw
 przygotowanychPotraw = 0;
-kucharzy = 3;
+oczekujacych = 0;
 doUkonczeniaPotrawy = wblrnd(1.158774415699941e+02, 1.3222556979404211, 1,  kucharzy);
 
 
@@ -27,6 +27,7 @@ while(dniSymulacji < iloscDniSymulacji)
     if(czasDnia > 22 * godzina)
         nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow;
         iloscKlientow = 0;
+        oczekujacych = 0;
         przygotowanychPotraw = 0;
         doUkonczeniaPotrawy = wblrnd(1.158774415699941e+02, 1.3222556979404211, 1, kucharzy);
         czasDoParagonuKas = zeros(1,iloscKas);
@@ -56,7 +57,9 @@ while(dniSymulacji < iloscDniSymulacji)
     %obsluga kas
     for kasa = 1:iloscKas
         if(czasDoParagonuKas(1, kasa) <= 0 && iloscKlientow > 0)
-            czasDoParagonuKas(1, kasa) = lognrnd(4.186137273240221, 0.582386104269140);
+            iloscKlientow = iloscKlientow -1;
+            oczekujacych = oczekujacych + 1;
+            czasDoParagonuKas(1, kasa) = (1+ (oczekujacych )/15) * lognrnd(4.186137273240221, 0.582386104269140);
         end
     end
     
@@ -69,12 +72,12 @@ while(dniSymulacji < iloscDniSymulacji)
     end
     
     %odbieranie potraw
-    if(przygotowanychPotraw > 0 && iloscKlientow > 0) 
-        if(przygotowanychPotraw > iloscKlientow)
-            przygotowanychPotraw = przygotowanychPotraw - iloscKlientow;
-            iloscKlientow = 0;
+    if(przygotowanychPotraw > 0 && oczekujacych > 0) 
+        if(przygotowanychPotraw > oczekujacych)
+            przygotowanychPotraw = przygotowanychPotraw - oczekujacych;
+            oczekujacych = 0;
         else 
-            iloscKlientow = iloscKlientow - przygotowanychPotraw;
+            oczekujacych = oczekujacych - przygotowanychPotraw;
             przygotowanychPotraw = 0;
         end
     end
