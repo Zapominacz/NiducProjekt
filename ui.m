@@ -122,9 +122,9 @@ run symulacja;
 
 procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
 
-set(handles.text3, 'String', num2str(calkowitaLiczbaKlientow))
-set(handles.text4, 'String', num2str(nieobsluzeniKlienci))
-set(handles.text6, 'String', num2str(procentObsluzonych))
+tekstWynikowy = sprintf('Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Procent obsluzonych klientow: %f\n', iloscKas, calkowitaLiczbaKlientow, nieobsluzeniKlienci, procentObsluzonych);
+
+set(handles.edit19, 'String', tekstWynikowy)
 
 function edit2_Callback(hObject, eventdata, handles)
 % hObject    handle to edit2 (see GCBO)
