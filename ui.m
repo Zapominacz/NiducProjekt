@@ -246,6 +246,12 @@ maxKasaNumber = str2double(maxKasa);
 dniWieleSymulacji = get(handles.edit17, 'String');
 iloscDniSymulacji = str2double(dniWieleSymulacji);
 
+kucharzy = str2double(get(handles.edit20, 'String'));
+rushHours = str2double(strread(get(handles.edit25, 'String'), '%s','delimiter',','));
+endRushHours = str2double(strread(get(handles.edit26, 'String'), '%s','delimiter',','));
+emptyHours = str2double(strread(get(handles.edit23, 'String'), '%s','delimiter',','));
+endEmptyHours = str2double(strread(get(handles.edit24, 'String'), '%s','delimiter',','));
+
 taby = [];
 tabx = [];
 
