@@ -3,6 +3,8 @@ minuta = 60;
 godzina = 60 * minuta;
 dzien = 24 * godzina;
 
+
+
 %switch czasowy dla ruchu
 rushHours = rushHours .* godzina;
 endRushHours = endRushHours .* godzina;
@@ -28,7 +30,12 @@ czasDoNastepnegoKlienta = 0;
 czasDoParagonuKas = zeros(1,iloscKas);
 
 %uszkodzenia kas
-czasDoUszkodzenia = exprnd(1/(3*godzina), 1, iloscKas);
+uszk63procKas = 3*godzina;
+poczatkoweU = [ones(1,10) * 10, 10:1:(dzien*30*3)] / (dzien*30*3);
+koncoweU = (((dzien*30*6):-1:1)) / (dzien*30);
+normalneU = ones(1,dzien*30*3);
+Uszkodzenia = [poczatkoweU, koncoweU, normalneU];
+czasDoUszkodzenia = wblrnd(uszk63procKas, 10/(dzien*30*3), 1, iloscKas);
 %naprawy
 czasDoNaprawy = zeros(1,iloscKas);
 %status 0 - dziala, 1 - nie
@@ -152,7 +159,7 @@ while(dniSymulacji < iloscDniSymulacji)
             %tylko 1 narazie - paragon
             czasDoNaprawy(1,kasa) = wblrnd(30, 2.1);
         elseif(czasDoNaprawy(1, kasa) <= 0 && statusKas(1,kasa) == 1)
-            czasDoUszkodzenia(1, kasa) = exprnd(1/(3*godzina));
+            czasDoUszkodzenia(1, kasa) = wblrnd(uszk63procKas, Uszkodzenia(1,dniSymulacji));
             statusKas(1,kasa) = 0;
         end
     end
