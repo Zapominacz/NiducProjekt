@@ -38,6 +38,27 @@ statusKas = zeros(1,iloscKas);
 dniSymulacji = 0;
 czasDnia = 11 * dzien;
 
+%koszty
+placaZaGodzineKasier = 20; %wiadomo, ze brutto
+placaZaGodzineKierownik = 28;
+placaZaGodzineKuchasz = 20;
+kosztKucharzy = kucharzy * placaZaGodzineKuchasz * 11; % 11 - ilosc godzin pracy 
+kosztKierownika = placaZaGodzineKierownik * 11;
+kosztKasierow = iloscKas * placaZaGodzineKasier * 11;
+kosztWynajmuDzien = 500; %nie jestem w stanie tego potwierdzic, ale wiadomo woda, prad, dobre miejsce
+kosztProdukcji = 0;
+%klasyfikacja produktow
+produkt1 = 0;
+produkt2 = 0;
+produkt3 = 0;
+produkt4 = 0;
+produkt5 = 0;
+produkt6 = 0;
+produkt7 = 0;
+produkt8 = 0;
+%dochody
+dochod = 0;
+
 %symulacja
 while(dniSymulacji < iloscDniSymulacji)
     %koniec dnia
@@ -96,6 +117,29 @@ while(dniSymulacji < iloscDniSymulacji)
             iloscKlientow = iloscKlientow -1;
             oczekujacych = oczekujacych + 1;
             czasDoParagonuKas(1, kasa) = (1+ (oczekujacych )/15) * lognrnd(4.186137273240221, 0.582386104269140);
+            
+                        %Generowanie dochodow
+            aktualneZamowienie = abs(normrnd(15.885,19.406566,1,1));
+            dochod = dochod + aktualneZamowienie;
+            if(aktualneZamowienie < 10)
+                produkt1=produkt1 +1 ;              
+            elseif(aktualneZamowienie > 10 && aktualneZamowienie <= 15)
+                produkt2 = produkt2 + 1;           
+            elseif(aktualneZamowienie > 15 && aktualneZamowienie <= 20)
+                produkt3 = produkt3 + 1;            
+            elseif(aktualneZamowienie > 20 && aktualneZamowienie <= 25)
+                produkt4 = produkt4 +1;
+            elseif(aktualneZamowienie > 25 && aktualneZamowienie <= 30)
+                produkt5 = produkt5 + 1;
+            elseif(aktualneZamowienie > 30 && aktualneZamowienie <= 35)
+                produkt6 = produkt6 + 1;
+            elseif(aktualneZamowienie > 35 && aktualneZamowienie <= 40)
+                produkt7 = produkt7 + 1;
+            elseif(aktualneZamowienie > 40)
+                produkt8 = produkt8 + 1;
+            end
+            liczbaZamowien = produkt1+produkt2+produkt3+produkt4+produkt5+produkt6+produkt7+produkt8;
+            
         end
         %psucie sie kas
         if(czasDoUszkodzenia(1, kasa) <= 0 && statusKas(1,kasa) == 0)
