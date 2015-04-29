@@ -138,7 +138,8 @@ while(dniSymulacji < iloscDniSymulacji)
             elseif(aktualneZamowienie > 40)
                 produkt8 = produkt8 + 1;
             end
-            liczbaZamowien = produkt1+produkt2+produkt3+produkt4+produkt5+produkt6+produkt7+produkt8;
+            %liczbaZamowien = produkt1+produkt2+produkt3+produkt4+produkt5+produkt6+produkt7+produkt8;
+            %Ta linjka przekleic do ui.m jezeli taka dana potrzebna
             
         end
         %psucie sie kas
