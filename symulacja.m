@@ -66,7 +66,7 @@ klientPoszedl = 0;
 while(dniSymulacji < iloscDniSymulacji)
     %koniec dnia
     if(czasDnia > 22 * godzina)
-        nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow +klientPoszedl;
+        nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow + klientPoszedl;
         iloscKlientow = 0;
         oczekujacych = 0;
         przygotowanychPotraw = 0;
@@ -165,7 +165,17 @@ while(dniSymulacji < iloscDniSymulacji)
     for kucharz = 1:kucharzy
         if(doUkonczeniaPotrawy(1, kucharz) <= 0)
             przygotowanychPotraw = przygotowanychPotraw + 1;
-            doUkonczeniaPotrawy(1, kucharz) = wblrnd(1.158774415699941e+02, 1.3222556979404211);
+            dodatkowyCzas = 0;
+            gotowe = 1;
+            while(gotowe)
+                niezawodnoscKucharzy = abs(normrnd(0.94,0.421637,10,1));
+                if (niezawodnoscKucharzy <= 0.7)
+                     dodatkowyCzas= dodatkowyCzas + abs(normrnd(13,5.142,1,1));
+                else
+                     doUkonczeniaPotrawy(1, kucharz) = wblrnd(1.158774415699941e+02, 1.3222556979404211) + dodatkowyCzas;
+                     gotowe = 0;
+                end
+            end
         end
     end
     
@@ -189,27 +199,26 @@ while(dniSymulacji < iloscDniSymulacji)
             if(abs(normrnd(0.6,0.2)) < 0.3)
                 iloscKlientow = iloscKlientow - 1;
                 klientPoszedl = klientPoszedl + 1;
+            end
+            %wartosci dystrybucji wyciagnac na gore
+            if(isRushHours)
+                czasDoNastepnegoKlienta = exprnd(16.714285714285715);
+            elseif(isEmptyHours)
+                czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
             else
-                %wartosci dystrybucji wyciagnac na gore
-                if(isRushHours)
-                    czasDoNastepnegoKlienta = exprnd(16.714285714285715);
-                elseif(isEmptyHours)
-                    czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
-                else
-                    czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
-                end
+                czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
             end
         else
-                if(isRushHours)
-                    czasDoNastepnegoKlienta = exprnd(16.714285714285715);
-                elseif(isEmptyHours)
-                    czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
-                else
-                    czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
-                end
+            if(isRushHours)
+                czasDoNastepnegoKlienta = exprnd(16.714285714285715);
+            elseif(isEmptyHours)
+                czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
+            else
+                czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
+            end
         end
-        
     end
+   
     
     %nastepny event
     eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, doUkonczeniaPotrawy, czasDoUszkodzenia, czasDoNaprawy];
