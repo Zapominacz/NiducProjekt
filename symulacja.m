@@ -59,11 +59,14 @@ produkt8 = 0;
 %dochody
 dochod = 0;
 
+%licznik ludzi znudzonych staniem
+klientPoszedl = 0;
+
 %symulacja
 while(dniSymulacji < iloscDniSymulacji)
     %koniec dnia
     if(czasDnia > 22 * godzina)
-        nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow;
+        nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow +klientPoszedl;
         iloscKlientow = 0;
         oczekujacych = 0;
         przygotowanychPotraw = 0;
@@ -181,14 +184,31 @@ while(dniSymulacji < iloscDniSymulacji)
     if(czasDoNastepnegoKlienta <= 0)
         calkowitaLiczbaKlientow = calkowitaLiczbaKlientow + 1;
         iloscKlientow = iloscKlientow + 1;
-        %wartosci dystrybucji wyciagnac na gore
-        if(isRushHours)
-            czasDoNastepnegoKlienta = exprnd(16.714285714285715);
-        elseif(isEmptyHours)
-            czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
+        %przypadki, kiedy klienci rezygnuja
+        if(iloscKlientow>(iloscKas*12))
+            if(abs(normrnd(0.6,0.2)) < 0.3)
+                iloscKlientow = iloscKlientow - 1;
+                klientPoszedl = klientPoszedl + 1;
+            else
+                %wartosci dystrybucji wyciagnac na gore
+                if(isRushHours)
+                    czasDoNastepnegoKlienta = exprnd(16.714285714285715);
+                elseif(isEmptyHours)
+                    czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
+                else
+                    czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
+                end
+            end
         else
-            czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
+                if(isRushHours)
+                    czasDoNastepnegoKlienta = exprnd(16.714285714285715);
+                elseif(isEmptyHours)
+                    czasDoNastepnegoKlienta = wblrnd(96.753113901444380, 1.105276393431296);
+                else
+                    czasDoNastepnegoKlienta = gamrnd(1.340581399238857, 39.044569969524230);
+                end
         end
+        
     end
     
     %nastepny event
