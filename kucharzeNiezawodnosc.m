@@ -19,8 +19,9 @@ for kucharz = 1:kucharzy
         end
     end
     if(potrawaTmp == 0)
-       [potrawaTmp, tworzonaPotrawa(1,kucharz)] = min(gotowychPotraw);
-       czasDoNastepnejPotrawy(1, tworzonaPotrawa(1,kucharz)) = wblrnd(1.158774415699941e+02, 1.3222556979404211);
+       [tmp, tworzonaPotrawa(1,kucharz)] = min(gotowychPotraw);
+       potrawaTmp = tworzonaPotrawa(1,kucharz);
+       czasDoNastepnejPotrawy(1, potrawaTmp) = wblrnd(sredniCzasPrzygotowania(1, potrawaTmp) * doswiadczenie(1, dzien), 1.3222556979404211);
     end
 end
 

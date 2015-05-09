@@ -2,46 +2,45 @@
 minuta = 60;
 godzina = 60 * minuta;
 dzien = 24 * godzina;
+miesiac = 30 * dzien;
 
 %switch czasowy dla ruchu
 rushHours = rushHours .* godzina;
 endRushHours = endRushHours .* godzina;
 emptyHours = emptyHours .* godzina;
 endEmptyHours = endEmptyHours .* godzina;
-isRushHours = false;
-isEmptyHours = false;
-rushHourIndex = 1;
-emptyHourIndex = 1;
 
 %klienci
 nieobsluzeniKlienci = 0;
 calkowitaLiczbaKlientow = 0;
 iloscKlientow = 0;
-oczekujacych = 0;
+%licznik ludzi znudzonych staniem
+klientPoszedl = 0;
 
 %przygotowywanie potraw
-przygotowanychPotraw = 0;
-doUkonczeniaPotrawy = wblrnd(1.158774415699941e+02, 1.3222556979404211, 1,  kucharzy);
+czasPrzystosowaniaKucharzy = 1 * miesiac;
+typowProduktow = 8;
+gotowychNaPoczatku = 5;
+sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * minuta; %powiazane z typowProduktow
+gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; %ile po czasie bedzie gotowych
+doswiadczenieKucharzy = [linspace(2,1,czasPrzystosowaniaKucharzy), ones(1, iloscDniSymulacji - czasPrzystosowaniaKucharzy)];
 
-%kasy
-czasDoNastepnegoKlienta = 0;
-czasDoParagonuKas = zeros(1,iloscKas);
-
+%prawdopodobieñstwo uszkodzenia
+poczatekU = 0.9;
+normalneU = 0.2;
+koncoweU = 0.8;
+%punkty "prze³omowe"
+dotarcieKas = 100;
+staroscKas = 540;
+%skala czasu - sredni czas zycia
+skalaKas = 160;
 %uszkodzenia kas
 uszk63procKas = 3*godzina;
-poczatkoweU = [ones(1,10) * dzien*10, dzien*10:1:(dzien*30*3)] / (dzien*30*3);
-koncoweU = (((dzien*30*6):-1:1)) / (dzien*30);
-normalneU = ones(1,dzien*30*3);
-Uszkodzenia = [poczatkoweU, koncoweU, normalneU];
-czasDoUszkodzenia = wblrnd(uszk63procKas, (dzien*30*3), 1, iloscKas);
-%naprawy
-czasDoNaprawy = zeros(1,iloscKas);
+pbUszkodzen = linspace(poczatekU, normalneU, dotarcieKas);
+pbUszkodzen = [pbUszkodzen, linspace(normalneU, normalneU, staroscKas - dotarcieKas)];
+pbUszkodzen = [pbUszkodzen, linspace(normalneU, koncoweU, iloscDniSymulacji - staroscKas)];
 %status 0 - dziala, 1 - nie
 statusKas = zeros(1,iloscKas);
-
-%czas
-dniSymulacji = 0;
-czasDnia = 11 * dzien;
 
 %koszty
 placaZaGodzineKasier = 20; %wiadomo, ze brutto
@@ -52,41 +51,41 @@ kosztKierownika = placaZaGodzineKierownik * 11;
 kosztKasierow = iloscKas * placaZaGodzineKasier * 11;
 kosztWynajmuDzien = 500; %nie jestem w stanie tego potwierdzic, ale wiadomo woda, prad, dobre miejsce
 kosztProdukcji = 0;
-%klasyfikacja produktow
-produkt1 = 0;
-produkt2 = 0;
-produkt3 = 0;
-produkt4 = 0;
-produkt5 = 0;
-produkt6 = 0;
-produkt7 = 0;
-produkt8 = 0;
 %dochody
 dochod = 0;
 
-%licznik ludzi znudzonych staniem
-klientPoszedl = 0;
+%czas
+dniSymulacji = 0; %nie potrzeba inicjalizowaæ na 1 dzien
+czasDnia = 23 * godzina;
 
 %symulacja
-while(dniSymulacji < iloscDniSymulacji)
+while(dniSymulacji <= iloscDniSymulacji)
     %koniec dnia
     if(czasDnia > 22 * godzina)
+        %zwijamy klientów, dodajemy do puli nieobs³u¿onych
         nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow + klientPoszedl;
         iloscKlientow = 0;
-        oczekujacych = 0;
-        przygotowanychPotraw = 0;
-        doUkonczeniaPotrawy = wblrnd(1.158774415699941e+02, 1.3222556979404211, 1, kucharzy);
+        oczekujacych = zeros(1, typowProduktow);
+        %zerujemy kolejkê, zak³adamy, ¿e przy nowym dniu od razu przychodzi
+        %klient
         czasDoParagonuKas = zeros(1,iloscKas);
         czasDoNastepnegoKlienta = 0;
+        %zerowanie wskaŸników godzin szczytu
         rushHourIndex = 1;
         emptyHourIndex = 1;
         isEmptyHours = false;
         isRushHours = false;
+        %przekrêcam licznik czasu
         czasDnia = 11 * godzina;
         dniSymulacji = dniSymulacji + 1;
-        %uszkodzenia kas
-        czasDoUszkodzenia = exprnd(1/(3*godzina), 1, iloscKas);
-        %naprawy
+        %kucharze - nowy dziêñ - nowa ¿ywnoœæ
+        tworzonaPotrawa = zeros(1,kucharzy);
+        gotowychPotraw = ones(1,typowProduktow) * gotowychNaPoczatku;
+        czasDoNastepnejPotrawy = zeros(1, typowProduktow);
+        %uszkodzenia kas - zak³adam, ¿e przez noc naprawi¹
+        tmp = ((1 + normalneU) * skalaKas) * (1- pbUszkodzen(1,dniSymulacji));
+        czasDoUszkodzenia = wblrnd(tmp, 3.4, 1, iloscKas);
+        %naprawy - jw.
         czasDoNaprawy = zeros(1,iloscKas);
         continue;
     end
@@ -122,33 +121,22 @@ while(dniSymulacji < iloscDniSymulacji)
     %obsluga kas
     for kasa = 1:iloscKas
         if(czasDoParagonuKas(1, kasa) <= 0 && iloscKlientow > 0 && statusKas(1, kasa) == 0)
-            iloscKlientow = iloscKlientow -1;
-            oczekujacych = oczekujacych + 1;
-            czasDoParagonuKas(1, kasa) = (1+ (oczekujacych )/15) * lognrnd(4.186137273240221, 0.582386104269140);
+            iloscKlientow = iloscKlientow - 1;
             
-                        %Generowanie dochodow
+            %Generowanie dochodow
             aktualneZamowienie = abs(normrnd(15.885,19.406566,1,1));
             dochod = dochod + aktualneZamowienie;
-            if(aktualneZamowienie < 10)
-                produkt1=produkt1 +1 ;              
-            elseif(aktualneZamowienie > 10 && aktualneZamowienie <= 15)
-                produkt2 = produkt2 + 1;           
-            elseif(aktualneZamowienie > 15 && aktualneZamowienie <= 20)
-                produkt3 = produkt3 + 1;            
-            elseif(aktualneZamowienie > 20 && aktualneZamowienie <= 25)
-                produkt4 = produkt4 +1;
-            elseif(aktualneZamowienie > 25 && aktualneZamowienie <= 30)
-                produkt5 = produkt5 + 1;
-            elseif(aktualneZamowienie > 30 && aktualneZamowienie <= 35)
-                produkt6 = produkt6 + 1;
-            elseif(aktualneZamowienie > 35 && aktualneZamowienie <= 40)
-                produkt7 = produkt7 + 1;
-            elseif(aktualneZamowienie > 40)
-                produkt8 = produkt8 + 1;
+            potrawa = ceil(aktualneZamowienie/5) - 2;
+            if(potrawa < 1)
+                potrawa = 1;
+            elseif(potrawa > 8)
+                potrawa = 8;
             end
-            %liczbaZamowien = produkt1+produkt2+produkt3+produkt4+produkt5+produkt6+produkt7+produkt8;
-            %Ta linjka przekleic do ui.m jezeli taka dana potrzebna
-            
+            %oczekuj¹cy spowalniaj¹ kolejkê
+            oczekujacych(1, potrawa) = oczekujacych(1, potrawa) + 1;
+            czasDoParagonuKas(1, kasa) = (1 + sum(oczekujacych)/15) * lognrnd(4.186137273240221, 0.582386104269140);
+
+            gotowychPotraw(1, potrawa) = gotowychPotraw(1, potrawa) - 1;
         end
         %psucie sie kas
         if(czasDoUszkodzenia(1, kasa) <= 0 && statusKas(1,kasa) == 0)
@@ -158,40 +146,41 @@ while(dniSymulacji < iloscDniSymulacji)
             %    oczekujacych = oczekujacych + 1;
             %end
             statusKas(1,kasa) = 1;
-            %tylko 1 narazie - paragon
+            %TODO ulepszyc czas napraw
             czasDoNaprawy(1,kasa) = wblrnd(10*minuta, 2.1);
         elseif(czasDoNaprawy(1, kasa) <= 0 && statusKas(1,kasa) == 1)
-            czasDoUszkodzenia(1, kasa) = wblrnd(uszk63procKas, Uszkodzenia(1,dniSymulacji));
+            tmp = wblrnd(((1 + normalneU) * skalaKas) * (1- pbUszkodzen(1,dniSymulacji)), 3.4);
+            czasDoUszkodzenia(1, kasa) =  tmp;%wewnatrz rozklad normalny
             statusKas(1,kasa) = 0;
         end
     end
     
     %przygotowanie potraw
     for kucharz = 1:kucharzy
-        if(doUkonczeniaPotrawy(1, kucharz) <= 0)
-            przygotowanychPotraw = przygotowanychPotraw + 1;
-            dodatkowyCzas = 0;
-            gotowe = 1;
-            while(gotowe)
-                niezawodnoscKucharzy = abs(normrnd(0.94,0.421637,10,1));
-                if (niezawodnoscKucharzy <= 0.7)
-                     dodatkowyCzas= dodatkowyCzas + abs(normrnd(13,5.142,1,1));
-                else
-                     doUkonczeniaPotrawy(1, kucharz) = wblrnd(1.158774415699941e+02, 1.3222556979404211) + dodatkowyCzas;
-                     gotowe = 0;
-                end
+        potrawaTmp = tworzonaPotrawa(1,kucharz);
+        if(potrawaTmp > 0)
+            if(czasDoNastepnejPotrawy(1, potrawaTmp) <= 0)
+               gotowychPotraw(1, potrawaTmp) = gotowychPotraw(1, potrawaTmp) + gotowychNaRaz(potrawaTmp);
+               tworzonaPotrawa(1,kucharz) = 0;
             end
+        end
+        if(potrawaTmp == 0)
+           [tmp, tworzonaPotrawa(1,kucharz)] = min(gotowychPotraw);
+           potrawaTmp = tworzonaPotrawa(1,kucharz);
+           czasDoNastepnejPotrawy(1, potrawaTmp) = wblrnd(sredniCzasPrzygotowania(1, potrawaTmp) * doswiadczenieKucharzy(1, dzien), 1.3222556979404211);
         end
     end
     
     %odbieranie potraw
-    if(przygotowanychPotraw > 0 && oczekujacych > 0) 
-        if(przygotowanychPotraw > oczekujacych)
-            przygotowanychPotraw = przygotowanychPotraw - oczekujacych;
-            oczekujacych = 0;
-        else 
-            oczekujacych = oczekujacych - przygotowanychPotraw;
-            przygotowanychPotraw = 0;
+    if(sum(gotowychPotraw) > 0 && sum(oczekujacych) > 0) 
+        for potrawa = 1:typowProduktow
+            if(gotowychPotraw(1, potrawa) > oczekujacych(1, potrawa))
+                gotowychPotraw(1, potrawa) = gotowychPotraw(1, potrawa) - oczekujacych(1, potrawa);
+                oczekujacych(1, potrawa) = 0;
+            else 
+                oczekujacych(1, potrawa) = oczekujacych(1, potrawa) - gotowychPotraw(1, potrawa);
+                gotowychPotraw(1, potrawa) = 0;
+            end
         end
     end
     
@@ -226,11 +215,11 @@ while(dniSymulacji < iloscDniSymulacji)
    
     
     %nastepny event
-    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, doUkonczeniaPotrawy, czasDoUszkodzenia, czasDoNaprawy];
+    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, czasDoNastepnejPotrawy, czasDoUszkodzenia, czasDoNaprawy];
     nextEvent = min(eventTime(eventTime > 0));
     czasDnia = nextEvent + czasDnia;
     %skrocenie czasow
-    doUkonczeniaPotrawy = doUkonczeniaPotrawy - nextEvent;
+    czasDoNastepnejPotrawy = czasDoNastepnejPotrawy - nextEvent;
     czasDoNastepnegoKlienta = czasDoNastepnegoKlienta - nextEvent;
     czasDoParagonuKas = czasDoParagonuKas - nextEvent;
     czasDoNaprawy = czasDoNaprawy - nextEvent;
