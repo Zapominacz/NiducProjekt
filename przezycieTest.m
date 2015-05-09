@@ -30,3 +30,6 @@ plot(Z);
 %h3 = wblcdf(t,dni,1);%wblpdf(t,dni,1) ./ (1-wblcdf(t,dni,1));
 %plot(t,h1,t, h3);
 
+%nie potrzeba rozrzutu w czasie dla napraw, bo mamy wiele kas
+%zak³adamy ¿ enp. 10 min ogarniecie burdelu ze zmian¹ kasy itd.
+

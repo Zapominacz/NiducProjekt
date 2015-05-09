@@ -3,8 +3,6 @@ minuta = 60;
 godzina = 60 * minuta;
 dzien = 24 * godzina;
 
-
-
 %switch czasowy dla ruchu
 rushHours = rushHours .* godzina;
 endRushHours = endRushHours .* godzina;
