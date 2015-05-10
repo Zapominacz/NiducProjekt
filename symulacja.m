@@ -63,7 +63,8 @@ while(dniSymulacji <= iloscDniSymulacji)
     %koniec dnia
     if(czasDnia > 22 * godzina)
         %zwijamy klientów, dodajemy do puli nieobs³u¿onych
-        nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow + klientPoszedl;
+        nieobsluzeniKlienci = nieobsluzeniKlienci + klientPoszedl;
+        %TODO klieci ktorzy zostali obciazaj¹ koszty
         iloscKlientow = 0;
         oczekujacych = zeros(1, typowProduktow);
         %zerujemy kolejkê, zak³adamy, ¿e przy nowym dniu od razu przychodzi
