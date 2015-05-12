@@ -121,10 +121,32 @@ iloscKas = str2double(kasy);
 run symulacja;
 
 procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
+dochod = ceil(dochod);
 
-tekstWynikowy = sprintf('Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Procent obsluzonych klientow: %f\n', iloscKas, calkowitaLiczbaKlientow, nieobsluzeniKlienci, procentObsluzonych);
+kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
+koszty = iloscDniSymulacji*(kosztKucharzy + kosztKierownika + kosztKasierow + kosztWynajmuDzien)+ 0.3*dochod + kosztNadGodzin;
+koszty = ceil(koszty);
 
+zysk= dochod-koszty;
+zysk=ceil(zysk);
+zamowienia = produktTyp1+produktTyp2+produktTyp3+produktTyp4+produktTyp5+produktTyp6+produktTyp7+produktTyp8;
+
+tekstWynikowy = sprintf('Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\n', iloscKas, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
+set(handles.text30, 'String', num2str(koszty))
+set(handles.text29, 'String', num2str(zysk))
+set(handles.text40, 'String', num2str(produktTyp1))
+set(handles.text39, 'String', num2str(produktTyp2))
+set(handles.text38, 'String', num2str(produktTyp3))
+set(handles.text37, 'String', num2str(produktTyp4))
+set(handles.text36, 'String', num2str(produktTyp5))
+set(handles.text35, 'String', num2str(produktTyp6))
+set(handles.text34, 'String', num2str(produktTyp7))
+set(handles.text33, 'String', num2str(produktTyp8))
+set(handles.text32, 'String', num2str(zamowienia))
+set(handles.text31, 'String', num2str(dochod))
 set(handles.edit19, 'String', tekstWynikowy)
+set(handles.text41, 'String', num2str(wszyscyNadgodziny)) % ilosc klientow
+set(handles.text42, 'String', num2str(kosztNadGodzin)) % koszt nadgodzin
 
 function edit2_Callback(hObject, eventdata, handles)
 % hObject    handle to edit2 (see GCBO)
@@ -265,13 +287,20 @@ for x = minKasaNumber:maxKasaNumber
     
     run symulacja;
     
+    dochod = ceil(dochod);
+    kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
+    koszty = iloscDniSymulacji*(kosztKucharzy + kosztKierownika + kosztKasierow + kosztWynajmuDzien)+ 0.3*dochod + kosztNadGodzin;
+    koszty = ceil(koszty);
+    zysk= dochod-koszty;
+    zysk=ceil(zysk);
+    
     procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
     
     taby(iterator) = procentObsluzonych;
     tabx(iterator) = x;
     iterator = iterator + 1;
     
-    tekstWynikowy = sprintf('%s Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Procent obsluzonych klientow: %f\n', tekstWynikowy, x, calkowitaLiczbaKlientow, nieobsluzeniKlienci, procentObsluzonych);
+    tekstWynikowy = sprintf('%s Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\n', tekstWynikowy, x, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
     
 end
 
