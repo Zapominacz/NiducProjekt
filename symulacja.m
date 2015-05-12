@@ -17,6 +17,7 @@ iloscKlientow = 0;
 %licznik ludzi znudzonych staniem
 klientPoszedl = 0;
 
+
 %przygotowywanie potraw
 czasPrzystosowaniaKucharzy = 1 * miesiac;
 typowProduktow = 8;
@@ -25,11 +26,11 @@ sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * minuta; %pow
 gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; %ile po czasie bedzie gotowych
 doswiadczenieKucharzy = [linspace(2,1,czasPrzystosowaniaKucharzy), ones(1, iloscDniSymulacji - czasPrzystosowaniaKucharzy)];
 
-%prawdopodobieñstwo uszkodzenia
+%prawdopodobieÅ„stwo uszkodzenia
 poczatekU = 0.9;
 normalneU = 0.2;
 koncoweU = 0.8;
-%punkty "prze³omowe"
+%punkty "przeÅ‚omowe"
 dotarcieKas = 100;
 staroscKas = 540;
 %skala czasu - sredni czas zycia
@@ -51,43 +52,82 @@ kosztKierownika = placaZaGodzineKierownik * 11;
 kosztKasierow = iloscKas * placaZaGodzineKasier * 11;
 kosztWynajmuDzien = 500; %nie jestem w stanie tego potwierdzic, ale wiadomo woda, prad, dobre miejsce
 kosztProdukcji = 0;
+%nadgodziny platne od obsluzonego klienta
+liczbaKlientowNadgodziny = 0;
+wszyscyNadgodziny = 0;
+kosztNadGodzin = 0;
 %dochody
 dochod = 0;
 
+%typy produktÃ³w podzial na podstawie ich ceny gdyby ktos chcial je liczyc
+produktTyp1 = 0;
+produktTyp2 = 0;
+produktTyp3 = 0;
+produktTyp4 = 0;
+produktTyp5 = 0;
+produktTyp6 = 0;
+produktTyp7 = 0;
+produktTyp8 = 0;
+liczbaZamowien = 0;
+
+%nadgodziny
+%zmienna zmienia sie na 1 po 22 gdy wymagany jest dodatkowy czas pracy
+nadgodziny = 0; 
+
 %czas
-dniSymulacji = 0; %nie potrzeba inicjalizowaæ na 1 dzien
+dniSymulacji = 0; %nie potrzeba inicjalizowaÄ‡ na 1 dzien
 czasDnia = 23 * godzina;
 
 %symulacja
 while(dniSymulacji <= iloscDniSymulacji)
-    %koniec dnia
-    if(czasDnia > 22 * godzina)
-        %zwijamy klientów, dodajemy do puli nieobs³u¿onych
+    
+    %sprawdzanie czy wystapia nadgodziny
+    if(czasDnia >= 22 * godzina && iloscKlientow > 0 && nadgodziny == 0)
+        %ustawiamy nadgodziny
+        nadgodziny = 1;
+        if(iloscKlientow > iloscKas*5)
+            iloscKlientow = iloscKas*5;
+        end
+        liczbaKlientowNadgodziny = iloscKlientow;
+        wszyscyNadgodziny = wszyscyNadgodziny + liczbaKlientowNadgodziny;
+        %W trakcie nadgodzin modul odpowiadajacy za generacje - wylaczony
+        calkowitaLiczbaKlientow = calkowitaLiczbaKlientow + liczbaKlientowNadgodziny;
+    end
+    
+    %po oblsudze dodatkowych klientow wylaczamy tryb nadgodzin
+    if(nadgodziny == 1 && iloscKlientow == 0 )
+        nadgodziny = 0;
+    end
+    
+    %koniec dnia pracy
+    if(czasDnia > 22 * godzina && nadgodziny == 0)
+        %zwijamy klientÃ³w, dodajemy do puli nieobsÅ‚uÅ¼onych
         nieobsluzeniKlienci = nieobsluzeniKlienci + klientPoszedl;
-        %TODO klieci ktorzy zostali obciazaj¹ koszty
+        %TODO klieci ktorzy zostali obciazajÄ… koszty
         iloscKlientow = 0;
         oczekujacych = zeros(1, typowProduktow);
-        %zerujemy kolejkê, zak³adamy, ¿e przy nowym dniu od razu przychodzi
+        %zerujemy kolejkÄ™, zakÅ‚adamy, Å¼e przy nowym dniu od razu przychodzi
         %klient
         czasDoParagonuKas = zeros(1,iloscKas);
         czasDoNastepnegoKlienta = 0;
-        %zerowanie wskaŸników godzin szczytu
+        %zerowanie wskaÅºnikÃ³w godzin szczytu
         rushHourIndex = 1;
         emptyHourIndex = 1;
         isEmptyHours = false;
         isRushHours = false;
-        %przekrêcam licznik czasu
+        %przekrÄ™cam licznik czasu
         czasDnia = 11 * godzina;
         dniSymulacji = dniSymulacji + 1;
-        %kucharze - nowy dziêñ - nowa ¿ywnoœæ
+        %kucharze - nowy dzieÅ„ - nowa Å¼ywnoÅ›Ä‡
         tworzonaPotrawa = zeros(1,kucharzy);
         gotowychPotraw = ones(1,typowProduktow) * gotowychNaPoczatku;
         czasDoNastepnejPotrawy = zeros(1, typowProduktow);
-        %uszkodzenia kas - zak³adam, ¿e przez noc naprawi¹
+        %uszkodzenia kas - zakÅ‚adam, Å¼e przez noc naprawiÄ…
         tmp = ((1 + normalneU) * skalaKas) * (1- pbUszkodzen(1,dniSymulacji));
         czasDoUszkodzenia = wblrnd(tmp, 3.4, 1, iloscKas);
         %naprawy - jw.
         czasDoNaprawy = zeros(1,iloscKas);
+        
         continue;
     end
     
@@ -124,19 +164,36 @@ while(dniSymulacji <= iloscDniSymulacji)
         if(czasDoParagonuKas(1, kasa) <= 0 && iloscKlientow > 0 && statusKas(1, kasa) == 0)
             iloscKlientow = iloscKlientow - 1;
             
-            %Generowanie dochodow
+                  %Generowanie dochodow
             aktualneZamowienie = abs(normrnd(15.885,19.406566,1,1));
             dochod = dochod + aktualneZamowienie;
             potrawa = ceil(aktualneZamowienie/5) - 2;
-            if(potrawa < 1)
+            
+            if(potrawa <= 1)
                 potrawa = 1;
-            elseif(potrawa > 8)
+                produktTyp1 = produktTyp1 +1;
+            elseif(potrawa >=8)
                 potrawa = 8;
+                produktTyp8 = produktTyp8 +1;
+            elseif(potrawa == 2)
+                produktTyp2 = produktTyp2 +1;
+            elseif(potrawa == 3)
+                produktTyp3 = produktTyp3 +1;
+            elseif(potrawa == 4)
+                produktTyp4 = produktTyp4 +1;
+            elseif(potrawa == 5)
+                produktTyp5 = produktTyp5 +1;
+            elseif(potrawa == 6)
+                produktTyp6 = produktTyp6 +1;
+            elseif(potrawa == 7)
+                produktTyp7 = produktTyp7 +1;
+            else
+                produktTyp2 = produktTyp2 +1;
             end
-            %oczekuj¹cy spowalniaj¹ kolejkê
+            
+            %oczekujÄ…cy spowalniajÄ… kolejkÄ™
             oczekujacych(1, potrawa) = oczekujacych(1, potrawa) + 1;
             czasDoParagonuKas(1, kasa) = (1 + sum(oczekujacych)/15) * lognrnd(4.186137273240221, 0.582386104269140);
-
             gotowychPotraw(1, potrawa) = gotowychPotraw(1, potrawa) - 1;
         end
         %psucie sie kas
@@ -186,7 +243,8 @@ while(dniSymulacji <= iloscDniSymulacji)
     end
     
     %Generowanie ludzi
-    if(czasDoNastepnegoKlienta <= 0)
+    %W czasie nadgodzin nie generujemy nowych klienitow
+    if(czasDoNastepnegoKlienta <= 0 && nadgodziny == 0)
         calkowitaLiczbaKlientow = calkowitaLiczbaKlientow + 1;
         iloscKlientow = iloscKlientow + 1;
         %przypadki, kiedy klienci rezygnuja
