@@ -19,6 +19,10 @@ klientPoszedl = 0;
 
 
 %przygotowywanie potraw
+<<<<<<< HEAD
+=======
+czasPrzystosowaniaKucharzy = 1 * 30;
+>>>>>>> origin/master
 typowProduktow = 8;
 sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * minuta; %powiazane z typowProduktow
 gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; %ile po czasie bedzie gotowych
@@ -75,8 +79,8 @@ while(dniSymulacji <= iloscDniSymulacji)
     if(czasDnia >= 22 * godzina && iloscKlientow > 0 && nadgodziny == 0)
         %ustawiamy nadgodziny
         nadgodziny = 1;
-        if(iloscKlientow > iloscKas*5)
-            iloscKlientow = iloscKas*5;
+        if(iloscKlientow > iloscKas * 5)
+            iloscKlientow = iloscKas * 5;
         end
         liczbaKlientowNadgodziny = iloscKlientow;
         wszyscyNadgodziny = wszyscyNadgodziny + liczbaKlientowNadgodziny;
@@ -111,9 +115,9 @@ while(dniSymulacji <= iloscDniSymulacji)
         %kucharze - nowy dzień - nowa żywność
         tworzonaPotrawa = zeros(1,kucharzy);
         gotowychPotraw = ones(1,typowProduktow) * gotowychNaPoczatku;
-        czasDoNastepnejPotrawy = zeros(1, typowProduktow);
+        czasTworzeniaPotrawyPrzezKucharza = zeros(1, kucharzy);
         %uszkodzenia kas - zakładam, że przez noc naprawią
-        tmp = ((1 + normalneU) * skalaKas) * (1- pbUszkodzen(1,dniSymulacji));
+        tmp = ((1 + normalneU) * skalaKas) * (1 - pbUszkodzen(1,dniSymulacji));
         czasDoUszkodzenia = wblrnd(tmp, 3.4, 1, iloscKas);
         %naprawy - jw.
         czasDoNaprawy = zeros(1,iloscKas);
@@ -207,15 +211,16 @@ while(dniSymulacji <= iloscDniSymulacji)
     for kucharz = 1:kucharzy
         potrawaTmp = tworzonaPotrawa(1,kucharz);
         if(potrawaTmp > 0)
-            if(czasDoNastepnejPotrawy(1, potrawaTmp) <= 0)
+            if(czasTworzeniaPotrawyPrzezKucharza(1, kucharz) <= 0)
                gotowychPotraw(1, potrawaTmp) = gotowychPotraw(1, potrawaTmp) + gotowychNaRaz(potrawaTmp);
                tworzonaPotrawa(1,kucharz) = 0;
+               potrawaTmp = 0;
             end
         end
         if(potrawaTmp == 0)
            [tmp, tworzonaPotrawa(1,kucharz)] = min(gotowychPotraw);
            potrawaTmp = tworzonaPotrawa(1,kucharz);
-           czasDoNastepnejPotrawy(1, potrawaTmp) = wblrnd(sredniCzasPrzygotowania(1, potrawaTmp) * doswiadczenieKucharzy(1, dzien), 1.3222556979404211);
+           czasTworzeniaPotrawyPrzezKucharza(1, kucharz) = wblrnd(sredniCzasPrzygotowania(1, potrawaTmp) * doswiadczenieKucharzy(1, dniSymulacji), 1.3222556979404211);
         end
     end
     
@@ -264,11 +269,11 @@ while(dniSymulacji <= iloscDniSymulacji)
    
     
     %nastepny event
-    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, czasDoNastepnejPotrawy, czasDoUszkodzenia, czasDoNaprawy];
+    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, czasTworzeniaPotrawyPrzezKucharza, czasDoUszkodzenia, czasDoNaprawy];
     nextEvent = min(eventTime(eventTime > 0));
     czasDnia = nextEvent + czasDnia;
     %skrocenie czasow
-    czasDoNastepnejPotrawy = czasDoNastepnejPotrawy - nextEvent;
+    czasTworzeniaPotrawyPrzezKucharza = czasTworzeniaPotrawyPrzezKucharza - nextEvent;
     czasDoNastepnegoKlienta = czasDoNastepnegoKlienta - nextEvent;
     czasDoParagonuKas = czasDoParagonuKas - nextEvent;
     czasDoNaprawy = czasDoNaprawy - nextEvent;
