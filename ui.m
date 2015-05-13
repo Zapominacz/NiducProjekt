@@ -22,7 +22,7 @@ function varargout = ui(varargin)
 
 % Edit the above text to modify the response to help ui
 
-% Last Modified by GUIDE v2.5 26-Apr-2015 22:17:43
+% Last Modified by GUIDE v2.5 13-May-2015 20:05:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,6 +57,8 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
+set(handles.checkbox1,'Value',1);
+global tekstWynikowy;
 
 % UIWAIT makes ui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -108,49 +110,7 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-dni = get(handles.edit17, 'String');
-iloscDniSymulacji = str2double(dni);
-kucharzy = str2double(get(handles.edit20, 'String'));
-rushHours = str2double(strread(get(handles.edit25, 'String'), '%s','delimiter',','));
-endRushHours = str2double(strread(get(handles.edit26, 'String'), '%s','delimiter',','));
-emptyHours = str2double(strread(get(handles.edit23, 'String'), '%s','delimiter',','));
-endEmptyHours = str2double(strread(get(handles.edit24, 'String'), '%s','delimiter',','));
-kasy = get(handles.edit5, 'String');
-iloscKas = str2double(kasy);
 
-h=waitbar(0, 'Proszê czekaæ', 'CloseRequestFcn', '');
-run symulacja;
-waitbar(1);
-close(h);
-delete(h);
-
-procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
-dochod = ceil(dochod);
-
-kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
-koszty = iloscDniSymulacji*(kosztKucharzy + kosztKierownika + kosztKasierow + kosztWynajmuDzien)+ 0.3*dochod + kosztNadGodzin;
-koszty = ceil(koszty);
-
-zysk= dochod-koszty;
-zysk=ceil(zysk);
-zamowienia = produktTyp1+produktTyp2+produktTyp3+produktTyp4+produktTyp5+produktTyp6+produktTyp7+produktTyp8;
-
-tekstWynikowy = sprintf('Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\n', iloscKas, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
-set(handles.text30, 'String', num2str(koszty))
-set(handles.text29, 'String', num2str(zysk))
-set(handles.text40, 'String', num2str(produktTyp1))
-set(handles.text39, 'String', num2str(produktTyp2))
-set(handles.text38, 'String', num2str(produktTyp3))
-set(handles.text37, 'String', num2str(produktTyp4))
-set(handles.text36, 'String', num2str(produktTyp5))
-set(handles.text35, 'String', num2str(produktTyp6))
-set(handles.text34, 'String', num2str(produktTyp7))
-set(handles.text33, 'String', num2str(produktTyp8))
-set(handles.text32, 'String', num2str(zamowienia))
-set(handles.text31, 'String', num2str(dochod))
-set(handles.edit19, 'String', tekstWynikowy)
-set(handles.text41, 'String', num2str(wszyscyNadgodziny)) % ilosc klientow
-set(handles.text42, 'String', num2str(kosztNadGodzin)) % koszt nadgodzin
 
 function edit2_Callback(hObject, eventdata, handles)
 % hObject    handle to edit2 (see GCBO)
@@ -263,6 +223,7 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
 minKasa = get(handles.edit16, 'String');
 minKasaNumber = str2double(minKasa);
 
@@ -280,9 +241,13 @@ endEmptyHours = str2double(strread(get(handles.edit24, 'String'), '%s','delimite
 
 taby = [];
 tabx = [];
+tabzysk = [];
+tabdochod = [];
+tabkoszty = [];
 
 iterator = 1;
 
+global tekstWynikowy;
 tekstWynikowy = '';
 h=waitbar(0, 'Proszê czekaæ', 'CloseRequestFcn', '');
 
@@ -291,7 +256,7 @@ for x = minKasaNumber:maxKasaNumber
     iloscKas = x;
     
     run symulacja;
-    waitbar(x/maxKasaNumber);
+    waitbar((x + minKasaNumber - 1)/(maxKasaNumber - minKasaNumber + 1));
     
     dochod = ceil(dochod);
     kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
@@ -304,9 +269,12 @@ for x = minKasaNumber:maxKasaNumber
     
     taby(iterator) = procentObsluzonych;
     tabx(iterator) = x;
+    tabzysk(iterator) = zysk;
+    tabdochod(iterator) = dochod;
+    tabkoszty(iterator) = koszty;
     iterator = iterator + 1;
     
-    tekstWynikowy = sprintf('%s Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\n', tekstWynikowy, x, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
+    tekstWynikowy = sprintf('%sIlosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\r\n', tekstWynikowy, x, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
     
 end
 
@@ -314,7 +282,37 @@ close(h);
 delete(h);
 
 set(handles.edit19, 'String', tekstWynikowy)
-plot(handles.axes1, tabx, taby);
+set(handles.text41, 'String', num2str(wszyscyNadgodziny)) % ilosc klientow
+set(handles.text42, 'String', num2str(kosztNadGodzin)) % koszt nadgodzin
+
+checkStatus = get(handles.checkbox1, 'value');
+ if checkStatus
+    
+     tabtypx = 1:1:8;
+     tabtypy = [produktTyp1 produktTyp2 produktTyp3 produktTyp4 produktTyp5 produktTyp6 produktTyp7 produktTyp8];
+    figure;
+    subplot(2, 3, 1);
+    plot(tabx, taby,'.','markersize',20);
+    xlabel('Ilosc kas');
+    ylabel('Ilosc obsluzonych w %');
+    subplot(2, 3, 2);
+    plot(tabx, tabzysk,'.','markersize',20);
+    xlabel('Ilosc kas');
+    ylabel('Zysk w z³');
+    subplot(2, 3, 3);
+    plot(tabx, tabdochod,'.','markersize',20);
+    xlabel('Ilosc kas');
+    ylabel('Dochody w z³');
+    subplot(2, 3, 4);
+    plot(tabx, tabkoszty,'.','markersize',20);
+    xlabel('Ilosc kas');
+    ylabel('Koszty w z³');
+    subplot(2, 3, 5);
+    plot(tabtypx, tabtypy,'.','markersize',20);
+    xlabel('Typ zamowienia');
+    ylabel('Ilosc zamowien');
+ end
+
 
 
 function edit17_Callback(hObject, eventdata, handles)
@@ -542,3 +540,17 @@ function zapisz_Callback(hObject, eventdata, handles)
 % hObject    handle to zapisz (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+global tekstWynikowy;
+fid=fopen('wyniki.txt', 'w');
+fprintf(fid, tekstWynikowy);
+fclose(fid);
+
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
