@@ -19,7 +19,7 @@ klientPoszedl = 0;
 
 
 %przygotowywanie potraw
-czasPrzystosowaniaKucharzy = 1 * miesiac;
+czasPrzystosowaniaKucharzy = 1 * 30;
 typowProduktow = 8;
 gotowychNaPoczatku = 5;
 sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * minuta; %powiazane z typowProduktow
@@ -85,8 +85,8 @@ while(dniSymulacji <= iloscDniSymulacji)
     if(czasDnia >= 22 * godzina && iloscKlientow > 0 && nadgodziny == 0)
         %ustawiamy nadgodziny
         nadgodziny = 1;
-        if(iloscKlientow > iloscKas*5)
-            iloscKlientow = iloscKas*5;
+        if(iloscKlientow > iloscKas * 5)
+            iloscKlientow = iloscKas * 5;
         end
         liczbaKlientowNadgodziny = iloscKlientow;
         wszyscyNadgodziny = wszyscyNadgodziny + liczbaKlientowNadgodziny;
@@ -220,12 +220,13 @@ while(dniSymulacji <= iloscDniSymulacji)
             if(czasDoNastepnejPotrawy(1, potrawaTmp) <= 0)
                gotowychPotraw(1, potrawaTmp) = gotowychPotraw(1, potrawaTmp) + gotowychNaRaz(potrawaTmp);
                tworzonaPotrawa(1,kucharz) = 0;
+               potrawaTmp = 0;
             end
         end
         if(potrawaTmp == 0)
            [tmp, tworzonaPotrawa(1,kucharz)] = min(gotowychPotraw);
            potrawaTmp = tworzonaPotrawa(1,kucharz);
-           czasDoNastepnejPotrawy(1, potrawaTmp) = wblrnd(sredniCzasPrzygotowania(1, potrawaTmp) * doswiadczenieKucharzy(1, dzien), 1.3222556979404211);
+           czasDoNastepnejPotrawy(1, potrawaTmp) = wblrnd(sredniCzasPrzygotowania(1, potrawaTmp) * doswiadczenieKucharzy(1, dniSymulacji), 1.3222556979404211);
         end
     end
     
