@@ -19,10 +19,6 @@ klientPoszedl = 0;
 
 
 %przygotowywanie potraw
-<<<<<<< HEAD
-=======
-czasPrzystosowaniaKucharzy = 1 * 30;
->>>>>>> origin/master
 typowProduktow = 8;
 sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * minuta; %powiazane z typowProduktow
 gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; %ile po czasie bedzie gotowych
