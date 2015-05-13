@@ -27,7 +27,7 @@ gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; %ile po czasie bedzie gotowych
 doswiadczenieKucharzy = [linspace(2,1,czasPrzystosowaniaKucharzy), ones(1, iloscDniSymulacji - czasPrzystosowaniaKucharzy)];
 
 %prawdopodobieństwo uszkodzenia
-poczatekU = 0.9;
+poczatekU = 0.4;
 normalneU = 0.2;
 koncoweU = 0.8;
 %punkty "przełomowe"
@@ -118,16 +118,14 @@ while(dniSymulacji <= iloscDniSymulacji)
         %przekręcam licznik czasu
         czasDnia = 11 * godzina;
         dniSymulacji = dniSymulacji + 1;
-        %kucharze - nowy dzień - nowa żywność
+        %kucharze - nowy dzien - nowa zywnosc
         tworzonaPotrawa = zeros(1,kucharzy);
         gotowychPotraw = ones(1,typowProduktow) * gotowychNaPoczatku;
         czasTworzeniaPotrawyPrzezKucharza = zeros(1, kucharzy);
-        %uszkodzenia kas - zakładam, że przez noc naprawią
+        %uszkodzenia kas - zakladam, ze przez noc zostaje naprawiona
+        statusKas = zeros(1,iloscKas);
         tmp = ((1 + normalneU) * skalaKas) * (1 - pbUszkodzen(1,dniSymulacji));
-        czasDoUszkodzenia = wblrnd(tmp, 3.4, 1, iloscKas);
-        %naprawy - jw.
-        czasDoNaprawy = zeros(1,iloscKas);
-        
+        czasDoKolejnegoStanuKas = wblrnd(tmp, 3.4, 1, iloscKas);
         continue;
     end
     
@@ -191,25 +189,24 @@ while(dniSymulacji <= iloscDniSymulacji)
                 produktTyp2 = produktTyp2 +1;
             end
             
-            %oczekujący spowalniają kolejkę
+            %oczekujacy spowalniaja kolejke
             oczekujacych(1, potrawa) = oczekujacych(1, potrawa) + 1;
             czasDoParagonuKas(1, kasa) = (1 + sum(oczekujacych)/15) * lognrnd(4.186137273240221, 0.582386104269140);
-            gotowychPotraw(1, potrawa) = gotowychPotraw(1, potrawa) - 1;
         end
-        %psucie sie kas
-        if(czasDoUszkodzenia(1, kasa) <= 0 && statusKas(1,kasa) == 0)
-            %konczy obsluge
-            %if(czasDoParagonuKas(1, kasa) > 0)
-            %    iloscKlientow = iloscKlientow -1;
-            %    oczekujacych = oczekujacych + 1;
-            %end
-            statusKas(1,kasa) = 1;
-            %TODO ulepszyc czas napraw
-            czasDoNaprawy(1,kasa) = wblrnd(10*minuta, 2.1);
-        elseif(czasDoNaprawy(1, kasa) <= 0 && statusKas(1,kasa) == 1)
-            tmp = wblrnd(((1 + normalneU) * skalaKas) * (1- pbUszkodzen(1,dniSymulacji)), 3.4);
-            czasDoUszkodzenia(1, kasa) =  tmp;%wewnatrz rozklad normalny
-            statusKas(1,kasa) = 0;
+        %zmiana stanu kas
+        if(czasDoKolejnegoStanuKas(1, kasa) <= 0)
+            %psucie
+            if(statusKas(1,kasa) == 0)
+                %nie konczy obslugi
+                statusKas(1,kasa) = 1;
+                %TODO ulepszyc czas napraw
+                czasDoKolejnegoStanuKas(1,kasa) = wblrnd(10*minuta, 2.1);
+            %naprawa
+            elseif(statusKas(1,kasa) == 1)
+                tmp = wblrnd(((1 + normalneU) * skalaKas) * (1- pbUszkodzen(1,dniSymulacji)), 3.4);
+                czasDoKolejnegoStanuKas(1, kasa) =  tmp;%wewnatrz rozklad normalny
+                statusKas(1,kasa) = 0;
+            end
         end
     end
     
@@ -275,13 +272,12 @@ while(dniSymulacji <= iloscDniSymulacji)
    
     
     %nastepny event
-    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, czasTworzeniaPotrawyPrzezKucharza, czasDoUszkodzenia, czasDoNaprawy];
+    eventTime = [czasDoNastepnegoKlienta, czasDoParagonuKas, czasTworzeniaPotrawyPrzezKucharza, czasDoKolejnegoStanuKas];
     nextEvent = min(eventTime(eventTime > 0));
     czasDnia = nextEvent + czasDnia;
     %skrocenie czasow
     czasTworzeniaPotrawyPrzezKucharza = czasTworzeniaPotrawyPrzezKucharza - nextEvent;
     czasDoNastepnegoKlienta = czasDoNastepnegoKlienta - nextEvent;
     czasDoParagonuKas = czasDoParagonuKas - nextEvent;
-    czasDoNaprawy = czasDoNaprawy - nextEvent;
-    czasDoUszkodzenia = czasDoUszkodzenia - nextEvent;
+    czasDoKolejnegoStanuKas = czasDoKolejnegoStanuKas - nextEvent;
 end
