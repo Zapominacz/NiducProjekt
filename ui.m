@@ -22,7 +22,7 @@ function varargout = ui(varargin)
 
 % Edit the above text to modify the response to help ui
 
-% Last Modified by GUIDE v2.5 13-May-2015 20:05:10
+% Last Modified by GUIDE v2.5 13-May-2015 21:27:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -233,49 +233,50 @@ maxKasaNumber = str2double(maxKasa);
 dniWieleSymulacji = get(handles.edit17, 'String');
 iloscDniSymulacji = str2double(dniWieleSymulacji);
 
-kucharzy = str2double(get(handles.edit20, 'String'));
+minKucharzy = str2double(get(handles.edit20, 'String'));
+maxKucharzy = str2double(get(handles.edit27, 'String'));
 rushHours = str2double(strread(get(handles.edit25, 'String'), '%s','delimiter',','));
 endRushHours = str2double(strread(get(handles.edit26, 'String'), '%s','delimiter',','));
 emptyHours = str2double(strread(get(handles.edit23, 'String'), '%s','delimiter',','));
 endEmptyHours = str2double(strread(get(handles.edit24, 'String'), '%s','delimiter',','));
 
-taby = [];
+taby = zeros((maxKucharzy-minKucharzy + 1),(maxKasaNumber - minKasaNumber + 1));
 tabx = [];
+tabz = [];
 tabzysk = [];
 tabdochod = [];
 tabkoszty = [];
 
-iterator = 1;
-
 global tekstWynikowy;
 tekstWynikowy = '';
 h=waitbar(0, 'Proszê czekaæ', 'CloseRequestFcn', '');
-
-for x = minKasaNumber:maxKasaNumber
+tabx = minKasaNumber:1:maxKasaNumber;
+tabz = minKucharzy:1:maxKucharzy;
+for y = minKucharzy:maxKucharzy
+    kucharzy = y;
+    for x = minKasaNumber:maxKasaNumber
     
-    iloscKas = x;
+        iloscKas = x;
+        
+        run symulacja;
+        waitbar(((maxKasaNumber - minKasaNumber + 1)*(y - minKucharzy) +(x + minKasaNumber - 1))/((maxKasaNumber - minKasaNumber + 1)*(maxKucharzy - minKucharzy + 1)));
     
-    run symulacja;
-    waitbar((x + minKasaNumber - 1)/(maxKasaNumber - minKasaNumber + 1));
+        dochod = ceil(dochod);
+        kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
+        koszty = iloscDniSymulacji*(kosztKucharzy + kosztKierownika + kosztKasierow + kosztWynajmuDzien)+ 0.3*dochod + kosztNadGodzin;
+        koszty = ceil(koszty);
+        zysk= dochod-koszty;
+        zysk=ceil(zysk);
     
-    dochod = ceil(dochod);
-    kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
-    koszty = iloscDniSymulacji*(kosztKucharzy + kosztKierownika + kosztKasierow + kosztWynajmuDzien)+ 0.3*dochod + kosztNadGodzin;
-    koszty = ceil(koszty);
-    zysk= dochod-koszty;
-    zysk=ceil(zysk);
+        procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
     
-    procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
+        taby((y + minKucharzy - 1),(x + minKasaNumber - 1)) = procentObsluzonych;
+        tabzysk((y + minKucharzy - 1),(x + minKasaNumber - 1)) = zysk;
+        tabdochod((y + minKucharzy - 1),(x + minKasaNumber - 1)) = dochod;
+        tabkoszty((y + minKucharzy - 1),(x + minKasaNumber - 1)) = koszty;
     
-    taby(iterator) = procentObsluzonych;
-    tabx(iterator) = x;
-    tabzysk(iterator) = zysk;
-    tabdochod(iterator) = dochod;
-    tabkoszty(iterator) = koszty;
-    iterator = iterator + 1;
-    
-    tekstWynikowy = sprintf('%sIlosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\r\n', tekstWynikowy, x, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
-    
+        tekstWynikowy = sprintf('%sIlosc kas: %d Ilosc kucharzy: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\r\n', tekstWynikowy, x, y, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
+    end
 end
 
 close(h);
@@ -292,21 +293,25 @@ checkStatus = get(handles.checkbox1, 'value');
      tabtypy = [produktTyp1 produktTyp2 produktTyp3 produktTyp4 produktTyp5 produktTyp6 produktTyp7 produktTyp8];
     figure;
     subplot(2, 3, 1);
-    plot(tabx, taby,'.','markersize',20);
+    surf(tabx, tabz, taby);
     xlabel('Ilosc kas');
-    ylabel('Ilosc obsluzonych w %');
+    ylabel('Ilosc kucharzy');
+    zlabel('Ilosc obsluzonych w %');
     subplot(2, 3, 2);
-    plot(tabx, tabzysk,'.','markersize',20);
+    surf(tabx, tabz, tabzysk);
     xlabel('Ilosc kas');
-    ylabel('Zysk w z³');
+    ylabel('Ilosc kucharzy');
+    zlabel('Zysk w z³');
     subplot(2, 3, 3);
-    plot(tabx, tabdochod,'.','markersize',20);
+    surf(tabx, tabz, tabdochod);
     xlabel('Ilosc kas');
-    ylabel('Dochody w z³');
+    ylabel('Ilosc kucharzy');
+    zlabel('Dochody w z³');
     subplot(2, 3, 4);
-    plot(tabx, tabkoszty,'.','markersize',20);
+    surf(tabx, tabz, tabkoszty);
     xlabel('Ilosc kas');
-    ylabel('Koszty w z³');
+    ylabel('Ilosc kucharzy');
+    zlabel('Koszty w z³');
     subplot(2, 3, 5);
     plot(tabtypx, tabtypy,'.','markersize',20);
     xlabel('Typ zamowienia');
@@ -554,3 +559,26 @@ function checkbox1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox1
+
+
+
+function edit27_Callback(hObject, eventdata, handles)
+% hObject    handle to edit27 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit27 as text
+%        str2double(get(hObject,'String')) returns contents of edit27 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit27_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit27 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
