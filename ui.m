@@ -118,7 +118,11 @@ endEmptyHours = str2double(strread(get(handles.edit24, 'String'), '%s','delimite
 kasy = get(handles.edit5, 'String');
 iloscKas = str2double(kasy);
 
+h=waitbar(0, 'Proszê czekaæ', 'CloseRequestFcn', '');
 run symulacja;
+waitbar(1);
+close(h);
+delete(h);
 
 procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
 dochod = ceil(dochod);
@@ -280,12 +284,14 @@ tabx = [];
 iterator = 1;
 
 tekstWynikowy = '';
+h=waitbar(0, 'Proszê czekaæ', 'CloseRequestFcn', '');
 
 for x = minKasaNumber:maxKasaNumber
     
     iloscKas = x;
     
     run symulacja;
+    waitbar(x/maxKasaNumber);
     
     dochod = ceil(dochod);
     kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
@@ -303,6 +309,9 @@ for x = minKasaNumber:maxKasaNumber
     tekstWynikowy = sprintf('%s Ilosc kas: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\n', tekstWynikowy, x, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
     
 end
+
+close(h);
+delete(h);
 
 set(handles.edit19, 'String', tekstWynikowy)
 plot(handles.axes1, tabx, taby);
