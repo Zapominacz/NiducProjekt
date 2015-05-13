@@ -80,6 +80,7 @@ czasDnia = 23 * godzina;
 
 %symulacja
 while(dniSymulacji <= iloscDniSymulacji)
+<<<<<<< HEAD
     
     %sprawdzanie czy wystapia nadgodziny
     if(czasDnia >= 22 * godzina && iloscKlientow > 0 && nadgodziny == 0)
@@ -104,6 +105,12 @@ while(dniSymulacji <= iloscDniSymulacji)
         %zwijamy klientów, dodajemy do puli nieobsłużonych
         nieobsluzeniKlienci = nieobsluzeniKlienci + klientPoszedl;
         %TODO klieci ktorzy zostali obciazają koszty
+=======
+    %koniec dnia
+    if(czasDnia > 22 * godzina)
+        %zwijamy klient�w, dodajemy do puli nieobs�u�onych
+        nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow + klientPoszedl;
+>>>>>>> parent of 6fee803... Wyrzucono system podliczania ludzi pod koniec dnia na rzecz modułu Adama
         iloscKlientow = 0;
         oczekujacych = zeros(1, typowProduktow);
         %zerujemy kolejkę, zakładamy, że przy nowym dniu od razu przychodzi
