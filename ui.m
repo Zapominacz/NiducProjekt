@@ -292,30 +292,30 @@ checkStatus = get(handles.checkbox1, 'value');
      tabtypx = 1:1:8;
      tabtypy = [produktTyp1 produktTyp2 produktTyp3 produktTyp4 produktTyp5 produktTyp6 produktTyp7 produktTyp8];
     figure;
-    subplot(2, 3, 1);
+    subplot(2, 2, 1);
     surf(tabx, tabz, taby);
     xlabel('Ilosc kas');
     ylabel('Ilosc kucharzy');
     zlabel('Ilosc obsluzonych w %');
-    subplot(2, 3, 2);
+    subplot(2, 2, 2);
     surf(tabx, tabz, tabzysk);
     xlabel('Ilosc kas');
     ylabel('Ilosc kucharzy');
     zlabel('Zysk w z³');
-    subplot(2, 3, 3);
+    subplot(2, 2, 3);
     surf(tabx, tabz, tabdochod);
     xlabel('Ilosc kas');
     ylabel('Ilosc kucharzy');
     zlabel('Dochody w z³');
-    subplot(2, 3, 4);
+    subplot(2, 2, 4);
     surf(tabx, tabz, tabkoszty);
     xlabel('Ilosc kas');
     ylabel('Ilosc kucharzy');
     zlabel('Koszty w z³');
-    subplot(2, 3, 5);
-    plot(tabtypx, tabtypy,'.','markersize',20);
-    xlabel('Typ zamowienia');
-    ylabel('Ilosc zamowien');
+    %subplot(2, 3, 5);
+    %plot(tabtypx, tabtypy,'.','markersize',20);
+    %xlabel('Typ zamowienia');
+    %ylabel('Ilosc zamowien');
  end
 
 
