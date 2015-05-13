@@ -19,17 +19,11 @@ klientPoszedl = 0;
 
 
 %przygotowywanie potraw
-czasPrzystosowaniaKucharzy = 1 * miesiac;
 typowProduktow = 8;
-gotowychNaPoczatku = 5;
 sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * minuta; %powiazane z typowProduktow
 gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; %ile po czasie bedzie gotowych
 doswiadczenieKucharzy = [linspace(2,1,czasPrzystosowaniaKucharzy), ones(1, iloscDniSymulacji - czasPrzystosowaniaKucharzy)];
 
-%prawdopodobieństwo uszkodzenia
-poczatekU = 0.9;
-normalneU = 0.2;
-koncoweU = 0.8;
 %punkty "przełomowe"
 dotarcieKas = 100;
 staroscKas = 540;
@@ -44,13 +38,9 @@ pbUszkodzen = [pbUszkodzen, linspace(normalneU, koncoweU, iloscDniSymulacji - st
 statusKas = zeros(1,iloscKas);
 
 %koszty
-placaZaGodzineKasier = 20; %wiadomo, ze brutto
-placaZaGodzineKierownik = 28;
-placaZaGodzineKuchasz = 20;
 kosztKucharzy = kucharzy * placaZaGodzineKuchasz * 11; % 11 - ilosc godzin pracy 
 kosztKierownika = placaZaGodzineKierownik * 11;
 kosztKasierow = iloscKas * placaZaGodzineKasier * 11;
-kosztWynajmuDzien = 500; %nie jestem w stanie tego potwierdzic, ale wiadomo woda, prad, dobre miejsce
 kosztProdukcji = 0;
 %nadgodziny platne od obsluzonego klienta
 liczbaKlientowNadgodziny = 0;
