@@ -237,16 +237,16 @@ minKucharzy = str2double(get(handles.edit20, 'String'));
 maxKucharzy = str2double(get(handles.edit27, 'String'));
 czasPrzystosowaniaKucharzy = str2double(get(handles.edit28, 'String')) * 30;
 
-%prawdopodobieÅ„stwo uszkodzenia
+%prawdopodobienstwo uszkodzenia
 poczatekU = str2double(get(handles.edit29, 'String'));
 normalneU = str2double(get(handles.edit31, 'String'));
 koncoweU = str2double(get(handles.edit32, 'String'));
 
 
 %koszty
-placaZaGodzineKasier = str2double(get(handles.edit36, 'String'));
+placaZaGodzineKasjer = str2double(get(handles.edit36, 'String'));
 placaZaGodzineKierownik = str2double(get(handles.edit37, 'String'));
-placaZaGodzineKuchasz = str2double(get(handles.edit38, 'String'));
+placaZaGodzineKucharz = str2double(get(handles.edit38, 'String'));
 kosztWynajmuDzien = str2double(get(handles.edit39, 'String'));
 
 gotowychNaPoczatku = str2double(get(handles.edit30, 'String'));
@@ -267,6 +267,10 @@ tekstWynikowy = '';
 h=waitbar(0, 'Proszê czekaæ', 'CloseRequestFcn', '');
 tabx = minKasaNumber:1:maxKasaNumber;
 tabz = minKucharzy:1:maxKucharzy;
+iterator = 1;
+roznicaKucharzy = maxKucharzy - minKucharzy + 1;
+roznicaKas = maxKasaNumber - minKasaNumber +  1;
+
 for y = minKucharzy:maxKucharzy
     kucharzy = y;
     for x = minKasaNumber:maxKasaNumber
@@ -274,21 +278,22 @@ for y = minKucharzy:maxKucharzy
         iloscKas = x;
         
         run symulacja;
-        waitbar(((maxKasaNumber - minKasaNumber + 1)*(y - minKucharzy) +(x + minKasaNumber - 1))/((maxKasaNumber - minKasaNumber + 1)*(maxKucharzy - minKucharzy + 1)));
+        iterator = iterator + 1;
+        waitbar(iterator/(roznicaKucharzy*roznicaKas));
     
         dochod = ceil(dochod);
         kosztNadGodzin = wszyscyNadgodziny*5; %5zl za klienta dla zespolu
-        koszty = iloscDniSymulacji*(kosztKucharzy + kosztKierownika + kosztKasierow + kosztWynajmuDzien)+ 0.3*dochod + kosztNadGodzin;
+        koszty = iloscDniSymulacji*(kosztKucharzy + kosztKierownika + kosztKasjerow + kosztWynajmuDzien)+ 0.3*dochod + kosztNadGodzin;
         koszty = ceil(koszty);
         zysk= dochod-koszty;
         zysk=ceil(zysk);
     
         procentObsluzonych = 100*(calkowitaLiczbaKlientow-nieobsluzeniKlienci)/calkowitaLiczbaKlientow;
     
-        taby((y + minKucharzy - 1),(x + minKasaNumber - 1)) = procentObsluzonych;
-        tabzysk((y + minKucharzy - 1),(x + minKasaNumber - 1)) = zysk;
-        tabdochod((y + minKucharzy - 1),(x + minKasaNumber - 1)) = dochod;
-        tabkoszty((y + minKucharzy - 1),(x + minKasaNumber - 1)) = koszty;
+        taby((y - minKucharzy + 1),(x - minKasaNumber + 1)) = procentObsluzonych;
+        tabzysk((y - minKucharzy + 1),(x - minKasaNumber + 1)) = zysk;
+        tabdochod((y - minKucharzy + 1),(x - minKasaNumber + 1)) = dochod;
+        tabkoszty((y - minKucharzy + 1),(x - minKasaNumber + 1)) = koszty;
     
         tekstWynikowy = sprintf('%sIlosc kas: %d Ilosc kucharzy: %d Ilosc klientow: %d Nieobsluzeni klienci: %d Zysk: %d Procent obsluzonych klientow: %f\r\n', tekstWynikowy, x, y, calkowitaLiczbaKlientow, nieobsluzeniKlienci, zysk, procentObsluzonych);
     end
