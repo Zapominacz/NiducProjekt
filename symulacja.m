@@ -14,16 +14,16 @@ endEmptyHours = endEmptyHours .* godzina;
 nieobsluzeniKlienci = 0;
 calkowitaLiczbaKlientow = 0;
 iloscKlientow = 0;
-%licznik ludzi, ktorzy z roznych przyczyn odeszli / niedolaczyli
-%do kolejki
+%licznik ludzi, ktorzy z roznych przyczyn 
+%odeszli / niedolaczyli do kolejki
 klientPoszedl = 0;
-
 
 %przygotowywanie potraw
 typowProduktow = 8;
 %powiazane z typowProduktow
-sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * minuta; 
-gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; %ile po czasie bedzie gotowych
+sredniCzasPrzygotowania = [5.4, 7.4, 4.3, 2.1, 1.9, 9.5, 11.5, 7] * 2.5 * minuta; 
+%ile po czasie bedzie gotowych
+gotowychNaRaz = [5, 5, 1, 5, 3, 10, 4, 3]; 
 doswiadczenieKucharzy = [linspace(2,1,czasPrzystosowaniaKucharzy), ...
     ones(1, iloscDniSymulacji - czasPrzystosowaniaKucharzy)];
 
@@ -74,6 +74,9 @@ nadgodziny = 0;
 dniSymulacji = 0; %1 dzien => zerowy indeks dnia
 czasDnia = 23 * godzina;
 
+%czas znudzenia oczekiwania w kolejce po jedzenie
+oczekujacyOdejdzie = 0;
+
 %petla zycia - symulacja
 while(dniSymulacji <= iloscDniSymulacji)
     
@@ -86,12 +89,12 @@ while(dniSymulacji <= iloscDniSymulacji)
         end
         liczbaKlientowNadgodziny = iloscKlientow;
         wszyscyNadgodziny = wszyscyNadgodziny + liczbaKlientowNadgodziny;
-        %W trakcie nadgodzin modul odpowiadajacy za generacje - wylaczony
+        %w trakcie nadgodzin modul odpowiadajacy za generacje - wylaczony
         calkowitaLiczbaKlientow = calkowitaLiczbaKlientow + ...
             liczbaKlientowNadgodziny;
     end
     
-    %po oblsudze dodatkowych klientow wylaczamy tryb nadgodzin
+    %po obsludze dodatkowych klientow wylaczamy tryb nadgodzin
     if(nadgodziny == 1 && iloscKlientow == 0 )
         nadgodziny = 0;
     end
@@ -135,11 +138,10 @@ while(dniSymulacji <= iloscDniSymulacji)
         else 
            if(czasDnia > rushHours(rushHourIndex))
                isRushHours = true;
-               
            end
         end
     end
-    %lub ich brak
+    %lub ich przeciwienstwo
     if(emptyHourIndex <= length(emptyHours))
         if(isEmptyHours)
            if(czasDnia > endEmptyHours(emptyHourIndex))
@@ -187,9 +189,8 @@ while(dniSymulacji <= iloscDniSymulacji)
             end
             
             %oczekujacy spowalniaja kolejke 
-            %TODO - ulepszyc powiazanie kasa - kucharz!!!
             oczekujacych(1, potrawa) = oczekujacych(1, potrawa) + 1;
-            czasDoParagonuKas(1, kasa) = (1 + sum(oczekujacych)/15) * ...
+            czasDoParagonuKas(1, kasa) = (1 + sum(oczekujacych)/10)^2 * ...
                 lognrnd(4.186137273240221, 0.582386104269140);
         end
         %zmiana stanu kas
@@ -216,8 +217,8 @@ while(dniSymulacji <= iloscDniSymulacji)
         potrawaTmp = tworzonaPotrawa(1,kucharz);
         if(potrawaTmp > 0)
             if(czasTworzeniaPotrawyPrzezKucharza(1, kucharz) <= 0)
-               gotowychPotraw(1, potrawaTmp) = gotowychPotraw(1, potrawaTmp) ...
-                   + gotowychNaRaz(potrawaTmp);
+               gotowychPotraw(1, potrawaTmp) = ...
+                   gotowychPotraw(1, potrawaTmp) + gotowychNaRaz(potrawaTmp);
                tworzonaPotrawa(1,kucharz) = 0;
                potrawaTmp = 0;
             end
@@ -246,8 +247,8 @@ while(dniSymulacji <= iloscDniSymulacji)
         end
     end
     
-    %Generowanie ludzi
-    %W czasie nadgodzin nie generujemy nowych klienitow
+    %generowanie ludzi
+    %w czasie nadgodzin nie generujemy nowych klienitow
     if(czasDoNastepnegoKlienta <= 0 && nadgodziny == 0)
         calkowitaLiczbaKlientow = calkowitaLiczbaKlientow + 1;
         iloscKlientow = iloscKlientow + 1;
@@ -287,8 +288,8 @@ while(dniSymulacji <= iloscDniSymulacji)
     nextEvent = min(eventTime(eventTime > 0));
     czasDnia = nextEvent + czasDnia;
     %skrocenie czasow
-    czasTworzeniaPotrawyPrzezKucharza = czasTworzeniaPotrawyPrzezKucharza ...
-        - nextEvent;
+    czasTworzeniaPotrawyPrzezKucharza = ...
+            czasTworzeniaPotrawyPrzezKucharza - nextEvent;
     czasDoNastepnegoKlienta = czasDoNastepnegoKlienta - nextEvent;
     czasDoParagonuKas = czasDoParagonuKas - nextEvent;
     czasDoKolejnegoStanuKas = czasDoKolejnegoStanuKas - nextEvent;
