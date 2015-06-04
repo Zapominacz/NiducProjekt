@@ -18,7 +18,7 @@ iloscKlientow = 0;
 %odeszli / niedolaczyli do kolejki
 klientPoszedl = 0;
 
-maxKolejka = 10;
+maxKolejka = 12;
 
 %przygotowywanie potraw
 typowProduktow = 8;
@@ -105,7 +105,7 @@ while(dniSymulacji <= iloscDniSymulacji)
         %uszkodzenia kas - zakladam, ze przez noc zostaje naprawiona
         statusKas = zeros(1,iloscKas);
         tmp = ((1 + normalneU) * skalaKas) * (1 - pbUszkodzen(1,dniSymulacji));
-        czasDoKolejnegoStanuKas = wblrnd(tmp, 3.4, 1, iloscKas);
+        czasDoKolejnegoStanuKas = wblrnd(tmp, 3.4, 1, iloscKas); %TODO;
         continue;
     end
     
@@ -172,7 +172,7 @@ while(dniSymulacji <= iloscDniSymulacji)
             %oczekujacy spowalniaja kolejke 
             oczekujacych(1, potrawa) = oczekujacych(1, potrawa) + 1;
             czasDoParagonuKas(1, kasa) = (1 + sum(oczekujacych)/10)^2 * ...
-                lognrnd(4.186137273240221, 0.582386104269140);
+                lognrnd(4.186137273240221, 0.582386104269140); %TODO
         end
         %zmiana stanu kas
         if(czasDoKolejnegoStanuKas(1, kasa) <= 0)
@@ -181,12 +181,12 @@ while(dniSymulacji <= iloscDniSymulacji)
                 %nie konczy obslugi
                 statusKas(1,kasa) = 1;
                 %TODO ulepszyc czas napraw
-                czasDoKolejnegoStanuKas(1,kasa) = wblrnd(10*minuta, 2.1);
+                czasDoKolejnegoStanuKas(1,kasa) = wblrnd(10*minuta, 2.1); %TODO
             %naprawa
             elseif(statusKas(1,kasa) == 1)
                 tmp = wblrnd(((1 + normalneU) * skalaKas) * ...
                     (1- pbUszkodzen(1,dniSymulacji)), 3.4);
-                czasDoKolejnegoStanuKas(1, kasa) =  tmp;
+                czasDoKolejnegoStanuKas(1, kasa) = tmp; %TODO
                 %wewnatrz rozklad normalny
                 statusKas(1,kasa) = 0;
             end
@@ -248,6 +248,7 @@ while(dniSymulacji <= iloscDniSymulacji)
             czasDoNastepnegoKlienta = ...
                 gamrnd(1.340581399238857, 39.044569969524230);
         end
+        czasDoNastepnegoKlienta = czasDoNastepnegoKlienta * 2;
     end
    
     
