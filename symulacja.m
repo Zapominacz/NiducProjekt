@@ -85,6 +85,7 @@ while(dniSymulacji <= iloscDniSymulacji)
         %ustawiamy nadgodziny
         nadgodziny = 1;
         if(iloscKlientow > iloscKas * 5)
+            nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow - iloscKas * 5;
             iloscKlientow = iloscKas * 5;
         end
         liczbaKlientowNadgodziny = iloscKlientow;
@@ -102,7 +103,7 @@ while(dniSymulacji <= iloscDniSymulacji)
     %koniec dnia pracy
     if(czasDnia > 22 * godzina && nadgodziny == 0)
         %zwijamy klientow, dodajemy do puli nieobsluzonych
-        nieobsluzeniKlienci = nieobsluzeniKlienci + klientPoszedl;
+        nieobsluzeniKlienci = nieobsluzeniKlienci + klientPoszedl + iloscKlientow;
         klientPoszedl = 0;
         iloscKlientow = 0;
         oczekujacych = zeros(1, typowProduktow);
