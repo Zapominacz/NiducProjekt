@@ -18,6 +18,8 @@ iloscKlientow = 0;
 %odeszli / niedolaczyli do kolejki
 klientPoszedl = 0;
 
+maxKolejka = 10;
+
 %przygotowywanie potraw
 typowProduktow = 8;
 %powiazane z typowProduktow
@@ -48,9 +50,7 @@ kosztKierownika = placaZaGodzineKierownik * 11;
 kosztKasjerow = iloscKas * placaZaGodzineKasjer * 11;
 kosztProdukcji = 0;
 %nadgodziny platne od obsluzonego klienta
-liczbaKlientowNadgodziny = 0;
 wszyscyNadgodziny = 0;
-kosztNadgodzin = 0;
 %dochody
 dochod = 0;
 
@@ -66,9 +66,6 @@ produktTyp7 = 0;
 produktTyp8 = 0;
 liczbaZamowien = 0;
 
-%nadgodziny - zmienna typu bool
-%zmienna zmienia sie na 1 po 22 gdy wymagany jest dodatkowy czas pracy
-nadgodziny = 0; 
 
 %czas
 dniSymulacji = 0; %1 dzien => zerowy indeks dnia
@@ -79,31 +76,13 @@ oczekujacyOdejdzie = 0;
 
 %petla zycia - symulacja
 while(dniSymulacji <= iloscDniSymulacji)
-    
-    %sprawdzanie czy wystapia nadgodziny
-    if(czasDnia >= 22 * godzina && iloscKlientow > 0 && nadgodziny == 0)
-        %ustawiamy nadgodziny
-        nadgodziny = 1;
-        if(iloscKlientow > iloscKas * 5)
-            nieobsluzeniKlienci = nieobsluzeniKlienci + iloscKlientow - iloscKas * 5;
-            iloscKlientow = iloscKas * 5;
-        end
-        liczbaKlientowNadgodziny = iloscKlientow;
-        wszyscyNadgodziny = wszyscyNadgodziny + liczbaKlientowNadgodziny;
-        %w trakcie nadgodzin modul odpowiadajacy za generacje - wylaczony
-        calkowitaLiczbaKlientow = calkowitaLiczbaKlientow + ...
-            liczbaKlientowNadgodziny;
-    end
-    
-    %po obsludze dodatkowych klientow wylaczamy tryb nadgodzin
-    if(nadgodziny == 1 && iloscKlientow == 0 )
-        nadgodziny = 0;
-    end
-    
+
     %koniec dnia pracy
-    if(czasDnia > 22 * godzina && nadgodziny == 0)
+    if(czasDnia > 22 * godzina)
+        
         %zwijamy klientow, dodajemy do puli nieobsluzonych
         nieobsluzeniKlienci = nieobsluzeniKlienci + klientPoszedl + iloscKlientow;
+        wszyscyNadgodziny = wszyscyNadgodziny + iloscKlientow;
         klientPoszedl = 0;
         iloscKlientow = 0;
         oczekujacych = zeros(1, typowProduktow);
@@ -251,35 +230,23 @@ while(dniSymulacji <= iloscDniSymulacji)
     
     %generowanie ludzi
     %w czasie nadgodzin nie generujemy nowych klienitow
-    if(czasDoNastepnegoKlienta <= 0 && nadgodziny == 0)
+    if(czasDoNastepnegoKlienta <= 0)
         calkowitaLiczbaKlientow = calkowitaLiczbaKlientow + 1;
         iloscKlientow = iloscKlientow + 1;
         %przypadki, kiedy klienci rezygnuja
-        if(iloscKlientow>(iloscKas*12))
-            if(abs(normrnd(0.6,0.2)) < 0.3)
-                iloscKlientow = iloscKlientow - 1;
-                klientPoszedl = klientPoszedl + 1;
-            end
-            %wartosci dystrybucji wyciagnac na gore
-            if(isRushHours)
-                czasDoNastepnegoKlienta = exprnd(16.714285714285715);
-            elseif(isEmptyHours)
-                czasDoNastepnegoKlienta = ...
-                    wblrnd(96.753113901444380, 1.105276393431296);
-            else
-                czasDoNastepnegoKlienta = ...
-                    gamrnd(1.340581399238857, 39.044569969524230);
-            end
+        
+        if(iloscKlientow > maxKolejka - 1 && normrnd(maxKolejka, 1) < iloscKlientow)
+            iloscKlientow = iloscKlientow - 1;
+            klientPoszedl = klientPoszedl + 1;
+        end
+        if(isRushHours)
+            czasDoNastepnegoKlienta = exprnd(16.714285714285715);
+        elseif(isEmptyHours)
+            czasDoNastepnegoKlienta = ...
+                wblrnd(96.753113901444380, 1.105276393431296);
         else
-            if(isRushHours)
-                czasDoNastepnegoKlienta = exprnd(16.714285714285715);
-            elseif(isEmptyHours)
-                czasDoNastepnegoKlienta = ...
-                    wblrnd(96.753113901444380, 1.105276393431296);
-            else
-                czasDoNastepnegoKlienta = ...
-                    gamrnd(1.340581399238857, 39.044569969524230);
-            end
+            czasDoNastepnegoKlienta = ...
+                gamrnd(1.340581399238857, 39.044569969524230);
         end
     end
    
