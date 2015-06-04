@@ -103,6 +103,7 @@ while(dniSymulacji <= iloscDniSymulacji)
     if(czasDnia > 22 * godzina && nadgodziny == 0)
         %zwijamy klientow, dodajemy do puli nieobsluzonych
         nieobsluzeniKlienci = nieobsluzeniKlienci + klientPoszedl;
+        klientPoszedl = 0;
         iloscKlientow = 0;
         oczekujacych = zeros(1, typowProduktow);
         %zerujemy kolejke, zakladamy, ze przy nowym dniu 
